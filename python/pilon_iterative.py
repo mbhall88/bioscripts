@@ -73,9 +73,9 @@ def log_and_run_command(command):
 def make_pilon_bam(
     reads1: Path, reads2: Path, ref_fasta: Path, outprefix: Path, threads=1
 ) -> Path:
-    sam_file = outprefix.with_suffix(".sam")
-    sorted_bam = outprefix.with_suffix(".sorted.bam")
-    done_file = outprefix.with_suffix(".done")
+    sam_file = Path(f"{outprefix}.sam")
+    sorted_bam = Path(f"{outprefix}.sorted.bam")
+    done_file = Path(f"{outprefix}.done")
     if done_file.exists():
         logging.info(f"Found done file {done_file}")
         assert sorted_bam.exists()
