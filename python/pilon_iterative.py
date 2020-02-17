@@ -118,7 +118,7 @@ def run_pilon(
 
 def number_of_pilon_changes(changes_file: Path) -> int:
     with changes_file.open() as f:
-        return sum(1 for line in f)
+        return sum(1 for _ in f)
 
 
 def check_file_exists(path: Path, filename_for_log: str):
@@ -134,7 +134,7 @@ def cli() -> argparse.Namespace:
         description=(
             "Iteratively run pilon to correct assembly. Stops after "
             f"{DEFAULT_MAX_ITERATIONS} (default) iterations, or if no changes made."
-        ),
+        )
     )
 
     parser.add_argument(
