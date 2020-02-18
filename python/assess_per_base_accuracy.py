@@ -25,7 +25,7 @@ def pileup_column_agrees_with_reference(
     base_counts = Counter(map(str.upper, column.get_query_sequences()))
     consensus_base = base_counts.most_common(1)
 
-    if not consensus_base or consensus_base != ref_base:
+    if not consensus_base or consensus_base != ref_base.upper():
         return False
 
     consensus_ratio = base_counts[consensus_base] / column.n * 100
