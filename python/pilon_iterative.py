@@ -22,10 +22,7 @@ def remove_pilon_from_fasta_headers(infile: Path, outfile: Path, number_of_pilon
             if line.startswith(">"):
                 line = line.rstrip()
                 assert line.endswith(expected_suffix)
-                line = (
-                    line[0 : -len(expected_suffix)]
-                    + f".{number_of_pilons}_pilon_iterations\n"
-                )
+                line = line[0 : -len(expected_suffix)]
 
             print(line, end="", file=f_out)
 
