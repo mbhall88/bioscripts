@@ -77,7 +77,7 @@ def main(bam: Path, assembly: Path, quorum: float, outfile: Path):
         alignment.check_index()
 
         for column in alignment.pileup():
-            ref_base = assembly_index[column.reference.name][column.reference_pos]
+            ref_base = assembly_index[column.reference_name][column.reference_pos]
             if not pileup_column_agrees_with_reference(column, ref_base, quorum):
                 base_disagreements += 1
 
