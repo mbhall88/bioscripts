@@ -36,6 +36,7 @@ def pileup_column_agrees_with_reference(
 
 
 @click.command()
+@click.help_option("--help", "-h")
 @click.option(
     "--bam",
     help="Bam file to assess.",
