@@ -99,7 +99,9 @@ def main(bam: Path, assembly: Path, quorum: float, outfile: Path):
     )
 
     mean_per_base_mapping_quality = sum(mean_position_mapping_qual) / num_bases
+    logging.info(f"Mean per-base mapping quality is {mean_per_base_mapping_quality}")
     mean_total_mapping_quality = sum(all_mapping_qualities) / len(all_mapping_qualities)
+    logging.info(f"Overall mean mapping quality is {mean_total_mapping_quality}")
 
     with outfile.open("w") as handle:
         print(
