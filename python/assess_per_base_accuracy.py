@@ -23,13 +23,14 @@ def pileup_column_agrees_with_reference(
     """quorum says that this percent of bases in the column must agree
     with the reference base for it to be considered consensus."""
     base_counts = Counter(map(str.upper, column.get_query_sequences()))
-    consensus_base = base_counts.most_common(1)
+    consensus = base_counts.most_common(1)
 
-    if not consensus_base or consensus_base != ref_base.upper():
+    if not consensus:
         return False
 
-    consensus_ratio = base_counts[consensus_base] / column.n * 100
-    if consensus_ratio < quorum:
+    consensus_base, consensus_count = consensus[0]
+    consensus_ratio = consensus_count / column.n * 100
+    if consensus_base != ref_base.upper() or consensus_ratio < quorum:
         return False
 
     return True
@@ -71,6 +72,7 @@ def main(bam: Path, assembly: Path, quorum: float, outfile: Path):
     logging.info(f"{num_bases} bases found in assembly.")
 
     base_disagreements = 0
+    positions_covered_by_pileup = 0
     mean_position_mapping_qual = []
     all_mapping_qualities = []
     with pysam.AlignmentFile(bam) as alignment:
@@ -84,12 +86,15 @@ def main(bam: Path, assembly: Path, quorum: float, outfile: Path):
             mapping_qualities = column.get_mapping_qualities()
             mean_mapq = sum(mapping_qualities) / column.n
             mean_position_mapping_qual.append(mean_mapq)
+            positions_covered_by_pileup += 1
 
         for record in alignment:
             all_mapping_qualities.append(record.mapping_quality)
 
+    base_disagreements += (num_bases - positions_covered_by_pileup)
+
     logging.info(
-        f"There are {base_disagreements} positions that disagree with the reference."
+        f"There are {base_disagreements} positions that disagree with the assembly."
     )
 
     perc_disagree = base_disagreements / num_bases * 100
