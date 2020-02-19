@@ -72,7 +72,7 @@ def validate_file(ctx, param, value):
         raise click.BadParameter(f"{value} does not exist!")
 
 
-def pileup_column_agrees_with_reference(column: PileupColumn, quorum: int) -> bool:
+def column_agrees_with_reference(column: PileupColumn, quorum: int) -> bool:
     """quorum says that this percent of bases in the column must agree
     with the reference base for it to be considered consensus."""
     match_percent = column.match_ratio() * 100
@@ -130,7 +130,6 @@ def collapse_positions_into_intervals(
     callback=validate_file,
 )
 @click.option(
-    "-p",
     "--prefix",
     help="Path prefix to write output JSON and BED files to.",
     type=str,
@@ -143,8 +142,21 @@ def collapse_positions_into_intervals(
     default=95,
     show_default=True,
 )
+@click.option(
+    "--min-depth",
+    help=(
+        "Minimum depth of reads required at a position. If read depth at a position is "
+        "below this value, the position is considered in disagreement with the "
+        "assembly."
+    ),
+    type=int,
+    default=0,
+    show_default=True,
+)
 @click.option("-v", "--verbose", help="Turns on debug-level logging.", is_flag=True)
-def main(bam: Path, pileup: Path, quorum: int, prefix: str, verbose: bool):
+def main(
+    bam: Path, pileup: Path, quorum: int, prefix: str, verbose: bool, min_depth: int
+):
     """A script to assess the per-base quality of an assembly. There are two key
     metrics analysed here:\n
     1. Per-base consensus of reads mapped to the assembly. Consensus is defined as
@@ -163,7 +175,9 @@ def main(bam: Path, pileup: Path, quorum: int, prefix: str, verbose: bool):
     with pileup.open() as pileup_handle:
         for num_pileup_positions, line in enumerate(pileup_handle, start=1):
             column = PileupColumn.from_string(line)
-            if not pileup_column_agrees_with_reference(column, quorum):
+            if column.depth < min_depth or not column_agrees_with_reference(
+                column, quorum
+            ):
                 num_disagreements += 1
                 disagreement_positions[column.chromosome].append(
                     column.ref_pos - PILEUP_TO_BED_OFFSET
