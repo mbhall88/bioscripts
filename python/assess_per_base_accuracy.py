@@ -72,7 +72,7 @@ def validate_file(ctx, param, value):
         raise click.BadParameter(f"{value} does not exist!")
 
 
-def pileup_column_agrees_with_reference(column: PileupColumn, quorum: float) -> bool:
+def pileup_column_agrees_with_reference(column: PileupColumn, quorum: int) -> bool:
     """quorum says that this percent of bases in the column must agree
     with the reference base for it to be considered consensus."""
     match_percent = column.match_ratio() * 100
@@ -111,7 +111,7 @@ def collapse_positions_into_intervals(
     help=(
         "Bam file to assess. It is up to the user whether to include "
         "secondary/supplementary alignments. These can be removed with "
-        "`samtools view -bh -f 0 -F 256"
+        "`samtools view -bh -f 0 -F 256`"
     ),
     type=Path,
     required=True,
@@ -130,30 +130,24 @@ def collapse_positions_into_intervals(
 @click.option(
     "-p",
     "--prefix",
-    help="Path prefix to write output json and BED file to.",
+    help="Path prefix to write output JSON and BED files to.",
     type=str,
     required=True,
 )
 @click.option(
     "--quorum",
-    help="Percentage of bases that must agree with reference at each position.",
-    type=float,
-    default=95.0,
+    help="Percentage of reads that must agree with the assembly at each position.",
+    type=click.IntRange(0, 100),
+    default=95,
     show_default=True,
 )
-@click.option(
-    "-v",
-    "--verbose",
-    help="Turns on debug-level logging.",
-    is_flag=True,
-    flag_value=True,
-)
-def main(bam: Path, pileup: Path, quorum: float, prefix: str, verbose: bool):
+@click.option("-v", "--verbose", help="Turns on debug-level logging.", is_flag=True)
+def main(bam: Path, pileup: Path, quorum: int, prefix: str, verbose: bool):
     """A script to assess the per-base quality of an assembly. There are two key
-    metrics analysed here:
+    metrics analysed here:\n
     1. Per-base consensus of reads mapped to the assembly. Consensus is defined as
-    whether the the percentage of reads matching the assembly position at a site is
-    greater than or equal to the value passed to --quorum
+    whether the percentage of reads matching the assembly at a site is
+    greater than or equal to the value passed to --quorum\n
     2. Mapping quality summary statistics. i.e. mean, median, quantiles etc.
     """
     log_level = logging.DEBUG if verbose else logging.INFO
