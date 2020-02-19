@@ -2,8 +2,13 @@ import click
 from collections import Counter, defaultdict
 import logging
 from pathlib import Path
+import pandas as pd
 import pysam
 import json
+from typing import List, Tuple
+from enum import Enum
+from itertools import groupby
+from operator import itemgetter
 
 # Pileup is 1-based positions, whereas BED is 0-based positions
 PILEUP_TO_BED_OFFSET = 1
@@ -78,6 +83,26 @@ def pileup_column_agrees_with_reference(column: PileupColumn, quorum: float) -> 
     return match_percent >= quorum
 
 
+class Interval(Enum):
+    OPEN = (1, 1)
+    CLOSED = (0, 0)
+    RIGHT_OPEN = (0, 1)
+    LEFT_OPEN = (1, 0)
+
+
+def collapse_positions_into_intervals(
+    data: List[int], interval_type: Interval = Interval.RIGHT_OPEN
+) -> List[Tuple[int, int]]:
+    left_offset, right_offset = interval_type.value
+    ranges = []
+    for k, g in groupby(enumerate(data), lambda x: x[0] - x[1]):
+        group = map(itemgetter(1), g)
+        group = list(map(int, group))
+        ranges.append((group[0] - left_offset, group[-1] + right_offset))
+
+    return ranges
+
+
 @click.command()
 @click.help_option("--help", "-h")
 @click.option(
@@ -133,13 +158,13 @@ def main(bam: Path, pileup: Path, quorum: float, prefix: str, verbose: bool):
     log_level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(format="%(levelname)s: %(message)s", level=log_level)
 
-    summary_stats = dict()
+    pileup_stats = dict()
 
     logging.info("Assessing pileup...")
     disagreement_positions = defaultdict(list)
     num_disagreements = 0
     with pileup.open() as pileup_handle:
-        for position_counter, line in enumerate(pileup_handle, start=1):
+        for num_pileup_positions, line in enumerate(pileup_handle, start=1):
             column = PileupColumn.from_string(line)
             if not pileup_column_agrees_with_reference(column, quorum):
                 num_disagreements += 1
@@ -148,59 +173,42 @@ def main(bam: Path, pileup: Path, quorum: float, prefix: str, verbose: bool):
                 )
 
     logging.info(f"There are {num_disagreements} disagreements in total.")
-    summary_stats["total_disagreements"] = num_disagreements
-    logging.info(f"There are {position_counter} total positions in the pileup.")
-    summary_stats["total_pileup_positions"] = position_counter
-    percent_disagree = num_disagreements / position_counter * 100
+    pileup_stats["total_disagreements"] = num_disagreements
+    logging.info(f"There are {num_pileup_positions} total positions in the pileup.")
+    pileup_stats["total_pileup_positions"] = num_pileup_positions
+    percent_disagree = num_disagreements / num_pileup_positions * 100
     logging.info(
         f"Therefore, {round(percent_disagree, 2)}% of positions did not reach quorum."
     )
-    summary_stats["percent_pileup_disagree"] = percent_disagree
+    pileup_stats["percent_pileup_disagree"] = percent_disagree
 
     logging.info("Assessing mapping quality...")
+    mapping_qualities = []
     with pysam.AlignmentFile(bam) as alignment:
-        alignment.check_index()
+        for num_bam_entries, record in enumerate(alignment, start=1):
+            mapping_qualities.append(record.mapping_quality)
 
-        for record in alignment:
-            mean_mapq = sum(mapping_qualities) / column.n
-            mean_position_mapping_qual.append(mean_mapq)
-            positions_covered_by_pileup += 1
+    mapq_summary = pd.Series(mapping_qualities).describe()
+    logging.info(f"Mapping quality summary statistics:\n{mapq_summary.to_string()}")
 
-        for record in alignment:
-            all_mapping_qualities.append(record.mapping_quality)
+    logging.info("Writing output files...")
+    json_path = Path(prefix + f".json")
 
-    base_disagreements += num_bases - positions_covered_by_pileup
+    summary_stats = dict()
+    summary_stats["pileup_stats"] = {**pileup_stats}
+    summary_stats["mapping_quality_stats"] = {**mapq_summary.to_dict()}
+    with json_path.open("w") as json_out_handle:
+        print(json.dumps(summary_stats, sort_keys=True, indent=4), file=json_out_handle)
+    logging.info(f"Summary statistics written to {json_path}")
 
-    logging.info(
-        f"There are {base_disagreements} positions that disagree with the assembly."
-    )
+    bed_path = Path(prefix + ".bed")
+    with bed_path.open("w") as bed_out_handle:
+        for chromosome, positions in disagreement_positions:
+            for chrom_start, chrom_end in collapse_positions_into_intervals(positions):
+                print(f"{chromosome}\t{chrom_start}\t{chrom_end}", file=bed_out_handle)
+    logging.info(f"Positions that disagree with the assembly are written to {bed_path}")
 
-    perc_disagree = base_disagreements / num_bases * 100
-
-    logging.info(
-        f"{perc_disagree}% of the assembly positions disagree with the reads in the BAM."
-    )
-
-    mean_per_base_mapping_quality = sum(mean_position_mapping_qual) / num_bases
-    logging.info(f"Mean per-base mapping quality is {mean_per_base_mapping_quality}")
-    mean_total_mapping_quality = sum(all_mapping_qualities) / len(all_mapping_qualities)
-    logging.info(f"Overall mean mapping quality is {mean_total_mapping_quality}")
-
-    with outfile.open("w") as handle:
-        print(
-            json.dumps(
-                {
-                    "base_disagreements": base_disagreements,
-                    "total_bases": num_bases,
-                    "percent_bases_disagree": perc_disagree,
-                    "mean_per_base_mapping_quality": mean_per_base_mapping_quality,
-                    "mean_per_read_mapping_quality": mean_total_mapping_quality,
-                },
-                sort_keys=True,
-                indent=4,
-            ),
-            file=handle,
-        )
+    logging.info("Finished!")
 
 
 if __name__ == "__main__":
