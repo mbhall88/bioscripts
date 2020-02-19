@@ -169,13 +169,13 @@ def main(bam: Path, pileup: Path, quorum: int, prefix: str, verbose: bool):
                     column.ref_pos - PILEUP_TO_BED_OFFSET
                 )
 
-    logging.info(f"There are {num_disagreements} disagreements in total.")
+    logging.info(f"There are {num_disagreements:,} disagreements in total.")
     pileup_stats["total_disagreements"] = num_disagreements
-    logging.info(f"There are {num_pileup_positions} total positions in the pileup.")
+    logging.info(f"There are {num_pileup_positions:,} total positions in the pileup.")
     pileup_stats["total_pileup_positions"] = num_pileup_positions
     percent_disagree = num_disagreements / num_pileup_positions * 100
     logging.info(
-        f"Therefore, {round(percent_disagree, 2)}% of positions did not reach quorum."
+        f"Therefore, {percent_disagree:,.4}% of positions did not reach quorum."
     )
     pileup_stats["percent_pileup_disagree"] = percent_disagree
 
@@ -186,7 +186,8 @@ def main(bam: Path, pileup: Path, quorum: int, prefix: str, verbose: bool):
             mapping_qualities.append(record.mapping_quality)
 
     mapq_summary = pd.Series(mapping_qualities).describe()
-    logging.info(f"Mapping quality summary statistics:\n{mapq_summary.to_string()}")
+    summary_stats_as_str = mapq_summary.to_string(float_format="{:,.4f}".format)
+    logging.info(f"Mapping quality summary statistics:\n{summary_stats_as_str}")
 
     logging.info("Writing output files...")
     json_path = Path(prefix + f".json")
@@ -200,7 +201,7 @@ def main(bam: Path, pileup: Path, quorum: int, prefix: str, verbose: bool):
 
     bed_path = Path(prefix + ".bed")
     with bed_path.open("w") as bed_out_handle:
-        for chromosome, positions in disagreement_positions:
+        for chromosome, positions in disagreement_positions.items():
             for chrom_start, chrom_end in collapse_positions_into_intervals(positions):
                 print(f"{chromosome}\t{chrom_start}\t{chrom_end}", file=bed_out_handle)
     logging.info(f"Positions that disagree with the assembly are written to {bed_path}")
