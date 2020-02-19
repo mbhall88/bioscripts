@@ -111,7 +111,7 @@ def collapse_positions_into_intervals(
     help=(
         "Bam file to assess. It is up to the user whether to include "
         "secondary/supplementary alignments. These can be removed with "
-        "`samtools view -bh -f 0 -F 256`"
+        "`samtools view -bh -F 3328`"
     ),
     type=Path,
     required=True,
