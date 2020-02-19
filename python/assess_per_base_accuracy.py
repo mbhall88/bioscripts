@@ -1,14 +1,15 @@
-import click
-from collections import Counter, defaultdict
-import logging
-from pathlib import Path
-import pandas as pd
-import pysam
 import json
-from typing import List, Tuple
+import logging
+from collections import Counter, defaultdict
 from enum import Enum
 from itertools import groupby
 from operator import itemgetter
+from pathlib import Path
+from typing import List, Tuple
+
+import click
+import pandas as pd
+import pysam
 
 # Pileup is 1-based positions, whereas BED is 0-based positions
 PILEUP_TO_BED_OFFSET = 1
