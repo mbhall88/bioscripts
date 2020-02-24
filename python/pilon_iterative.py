@@ -242,15 +242,22 @@ def main():
             f"Number of changes at iteration {iteration_num}: {number_of_changes}"
         )
         files["done_file"].touch()
-        logging.info(f"End iteration {iteration_num}")
 
         if number_of_changes == 0:
             logging.info(f"No changes made in iteration {iteration_num}. Stopping")
-            logging.info("Making final corrected file final.fasta with renamed contigs")
-            remove_pilon_from_fasta_headers(
-                files["corrected_fasta"], Path(options.final_fasta), iteration_num
+            break
+        elif iteration_num >= options.max_iterations:
+            logging.info(
+                f"Reached max. iteration number of {options.max_iterations}. Stopping"
             )
             break
+        else:
+            logging.info(f"End of iteration {iteration_num}. Continuing")
+
+    logging.info("Making final corrected file final.fasta with renamed contigs")
+    remove_pilon_from_fasta_headers(
+        files["corrected_fasta"], Path(options.final_fasta), iteration_num
+    )
 
     logging.info("Finished")
 
