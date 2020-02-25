@@ -165,7 +165,9 @@ def main(
     2. Mapping quality summary statistics. i.e. mean, median, quantiles etc.
     """
     log_level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(format="%(levelname)s: %(message)s", level=log_level)
+    logging.basicConfig(
+        format="%(asctime)s [%(levelname)s]: %(message)s", level=log_level
+    )
 
     pileup_stats = dict()
 
