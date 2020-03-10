@@ -140,41 +140,39 @@ class Pilon:
                 else:
                     path.unlink()
 
-def run_pilon(
-    bam: PathLike,
-    ref_fasta: PathLike,
-    outdir: Path,
-    pilon_jar: PathLike,
-    java_xmx_opt: str,
-    threads: int = 1,
-):
-    fasta = outdir / "pilon.fasta"
-    done_file = outdir / ".done"
-    if done_file.exists():
-        logging.info(f"Found done file {done_file}")
-        assert os.path.exists(f"{fasta}.fai")
+    def generate_params(self) -> str:
+        params = [
+            f"-Xmx{self.memory}",
+            f"-jar {self.jarfile}",
+            f"--threads {self.threads}",
+            f"--minmq {self.min_mapq}",
+            f"--minmq {self.min_mapq}",
+            f"--minqual {self.min_qual}",
+            "--changes",
+        ]
+        return " ".join(params)
 
-    log_and_run_command(
-        f"java -Xmx{java_xmx_opt} -jar {pilon_jar} --outdir {outdir} "
-        f"--genome {ref_fasta} --frags {bam} --changes --threads {threads} "
-        f"--minmq 10 --minqual 10"
-    )
-    log_and_run_command(f"bwa index {fasta}")
-    log_and_run_command(f"samtools faidx {fasta}")
-    done_file.touch()
+    def run(
+        self, bam: PathLike, assembly: PathLike, outdir: Path,
+    ):
+        fasta = outdir / "pilon.fasta"
+        done_file = outdir / ".done"
+        if done_file.exists():
+            logging.info(f"Found done file {done_file}")
+            assert os.path.exists(f"{fasta}.fai")
 
+        params = self.generate_params()
+        log_and_run_command(
+            f"java {params} --outdir {outdir} --genome {assembly} --frags {bam}"
+        )
+        log_and_run_command(f"bwa index {fasta}")
+        log_and_run_command(f"samtools faidx {fasta}")
+        done_file.touch()
 
-def number_of_pilon_changes(changes_file: Path) -> int:
-    with changes_file.open() as f:
-        return sum(1 for _ in f)
-
-
-def check_file_exists(path: Path, filename_for_log: str):
-    if path.exists():
-        logging.info(f"Found {filename_for_log}: {path}")
-    else:
-        logging.info(f"Not found: {filename_for_log}: {path}")
-        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), path)
+    @staticmethod
+    def number_of_changes(changes_file: Path) -> int:
+        with changes_file.open() as f:
+            return sum(1 for _ in f)
 
 
 @click.command()
