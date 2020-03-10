@@ -194,7 +194,7 @@ class Pilon:
 @click.option(
     "-o",
     "--outdir",
-    help="Name of output/working.",
+    help="Name of output/working directory.",
     required=True,
     type=click.Path(exists=False, file_okay=False, resolve_path=True),
 )
@@ -250,7 +250,7 @@ class Pilon:
     "--fix",
     help=(
         "A comma-separated list of categories of issues to try to fix. Refer to the "
-        "pilon documentation for valid values - https://github.com/broadinstitute/pilon/wiki/Requirements-&-Usage"
+        "pilon documentation for valid values."
     ),
     default=DEFAULTS["fix"],
     show_default=True,
@@ -293,7 +293,7 @@ def main(
     fix: str,
     min_qual: int,
     min_mapq: int,
-    force: bool
+    force: bool,
 ):
     """Iteratively run pilon to correct an assembly with Illumina reads. Stops after a
     specified number of iterations, or if no changes were made on the last iteration.
