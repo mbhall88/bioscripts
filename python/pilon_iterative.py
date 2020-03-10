@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-
-import click
-import errno
 import logging
 import os
-from pathlib import Path
-import subprocess
 import re
+import subprocess
+from pathlib import Path
 from typing import Dict, Union
+
+import click
 
 PathLike = Union[Path, str, os.PathLike]
 DEFAULTS = {
