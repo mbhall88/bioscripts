@@ -10,7 +10,15 @@ import re
 from typing import Dict, Union
 
 PathLike = Union[Path, str, os.PathLike]
-DEFAULT_MAX_ITERATIONS = 10
+DEFAULTS = {
+    "max-iterations": 10,
+    "min-mapq": 10,
+    "min-qual": 10,
+    "fix": "all",
+    "pilon-memory": "8G",
+    "final-fasta": "final.fasta",
+    "threads": 1,
+}
 XMX_REGEX = re.compile(r"^[0-9]+[gkm]$", re.IGNORECASE)
 XMX_URL = "https://bit.ly/3c3KEot"
 
@@ -106,6 +114,34 @@ def make_pilon_bam(
     return sorted_bam
 
 
+class Pilon:
+    def __init__(
+        self,
+        jarfile: PathLike,
+        memory: str,
+        threads: int,
+        min_mapq: int,
+        min_qual: int,
+        fixes: str,
+    ):
+        self.jarfile = jarfile
+        self.memory = memory
+        self.threads = threads
+        self.min_mapq = min_mapq
+        self.min_qual = min_qual
+        self.fixes = fixes
+
+    @staticmethod
+    def cleanup_checkpoints(directory: Path):
+        checkpoint_regex = re.compile(r"iteration\.[0-9]+\.(done|map|pilon)(\.done)?")
+        for path in directory.iterdir():
+            if checkpoint_regex.match(path.name):
+                logging.debug(f"Found checkpoint file {path}. Removing file...")
+                if path.is_dir():
+                    path.rmdir()
+                else:
+                    path.unlink()
+
 def run_pilon(
     bam: PathLike,
     ref_fasta: PathLike,
@@ -170,7 +206,7 @@ def check_file_exists(path: Path, filename_for_log: str):
     "-f",
     "--final-fasta",
     help="Name of the final, polished fasta file.",
-    default="final.fasta",
+    default=DEFAULTS["final-fasta"],
     show_default=True,
 )
 @click.option(
@@ -191,7 +227,7 @@ def check_file_exists(path: Path, filename_for_log: str):
     "-i",
     "--max-iterations",
     type=click.IntRange(min=1),
-    default=DEFAULT_MAX_ITERATIONS,
+    default=DEFAULTS["max-iterations"],
     help="Max number of iterations.",
     show_default=True,
 )
@@ -199,20 +235,46 @@ def check_file_exists(path: Path, filename_for_log: str):
     "-t",
     "--threads",
     type=click.IntRange(min=1),
-    default=1,
+    default=DEFAULTS["threads"],
     help="Number of threads to use with BWA mem and pilon.",
     show_default=True,
 )
 @click.option(
     "-m",
     "--pilon-memory",
-    default="8G",
+    default=DEFAULTS["pilon-memory"],
     help=(
         "Maximum memory allocation pool for running Pilon. It is passed as `java "
         f"-Xmx<value>`. Format: <int>[g|G|m|M|k|K]. See {XMX_URL} for more information."
     ),
     show_default=True,
     callback=validate_xmx,
+)
+@click.option(
+    "--fix",
+    help=(
+        "A comma-separated list of categories of issues to try to fix. Refer to the "
+        "pilon documentation for valid values - https://github.com/broadinstitute/pilon/wiki/Requirements-&-Usage"
+    ),
+    default=DEFAULTS["fix"],
+    show_default=True,
+)
+@click.option(
+    "--min-mapq",
+    help="Minimum alignment mapping quality for a read to count in pileups",
+    default=DEFAULTS["min-mapq"],
+    show_default=True,
+)
+@click.option(
+    "--min-qual",
+    help="Minimum base quality to consider for pileups",
+    default=DEFAULTS["min-qual"],
+    show_default=True,
+)
+@click.option(
+    "--force",
+    help="Ignore any previous checkpoints and polish from iteration 1.",
+    is_flag=True,
 )
 @click.option(
     "-l",
@@ -232,6 +294,10 @@ def main(
     threads: int,
     pilon_memory: str,
     log_file: str,
+    fix: str,
+    min_qual: int,
+    min_mapq: int,
+    force: bool
 ):
     """Iteratively run pilon to correct an assembly with Illumina reads. Stops after a
     specified number of iterations, or if no changes were made on the last iteration.
@@ -251,6 +317,10 @@ def main(
     )
     logfile_handle.setFormatter(formatter)
     log.addHandler(logfile_handle)
+
+    pilon = Pilon(pilon_jar, pilon_memory, threads, min_mapq, min_qual, fix)
+    if force:
+        pilon.cleanup_checkpoints(outdir)
 
     for iteration_num in range(1, max_iterations + 1, 1):
         logging.info(f"Start iteration {iteration_num}")
