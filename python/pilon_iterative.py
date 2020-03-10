@@ -322,24 +322,17 @@ def main(
         logging.info(f"Start iteration {iteration_num}")
         files = get_iteration_files(iteration_num, assembly)
 
-        if files["done_file"].exists():
+        if files["done_file"].exists() and not force:
             logging.info(f'Found iteration done file {files["done_file"]}')
         else:
             bam = make_pilon_bam(
                 reads1, reads2, files["ref_fasta"], files["mapping_prefix"], threads
             )
-            run_pilon(
-                bam,
-                files["ref_fasta"],
-                files["pilon_dir"],
-                pilon_jar,
-                pilon_memory,
-                threads,
-            )
+            pilon.run(bam, files["ref_fasta"], files["pilon_dir"])
             bam.unlink()
             Path(f"{bam}.bai").unlink()
 
-        number_of_changes = number_of_pilon_changes(files["changes_file"])
+        number_of_changes = pilon.number_of_changes(files["changes_file"])
         logging.info(
             f"Number of changes at iteration {iteration_num}: {number_of_changes}"
         )
