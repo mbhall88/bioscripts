@@ -415,7 +415,7 @@ A script to assist with submitting a guppy basecalling job on an LSF cluster. Th
 submits the job to run in a singularity (v3) container and makes some assumptions about the
 location of CUDA libraries and binaries. Update if necessary.
 
-Usage: $0 -i <fast5_dir> -o <outdir> -j <jobname>
+Usage: $(basename "$0") -i <fast5_dir> -o <outdir> -j <jobname>
 
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
