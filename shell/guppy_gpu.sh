@@ -458,7 +458,7 @@ function parse_params() {
 	local param
 	while [[ $# -gt 0 ]]; do
 		param="$1"
-		shift
+		shift  # past argument
 		case $param in
 		-h | --help)
 			script_usage
@@ -474,51 +474,43 @@ function parse_params() {
 			cron=true
 			;;
 		-i | --input)
-			input="$2"
+			input="$1"
 			if [ ! -d "$input" ]; then
 				script_exit "ERROR: Input directory $input does not exist" 1
 			fi
-            shift # past argument
             shift # past value
 			;;
 		-o | --outdir)
-			outdir="$2"
+			outdir="$1"
 			if [ ! -d "$outdir" ]; then
 				pretty_print "WARNING: Output directory $outdir does not exist. Creating..."
 				mkdir "$outdir"
 			fi
-            shift # past argument
             shift # past value
 			;;
 		-j | --jobname)
-			jobname="$2"
-            shift # past argument
+			jobname="$1"
             shift # past value
 			;;
 		-g | --gpus)
-			num_gpus="$2"
-            shift # past argument
+			num_gpus="$1"
             shift # past value
 			;;
 		-m | --memory)
-            val="$2"
+            val="$1"
 			memory=$((val * 1000))
-            shift # past argument
             shift # past value
 			;;
 		-c | --config)
-			config="$2"
-            shift # past argument
+			config="$1"
             shift # past value
 			;;
 		--host)
-			gpu_host="$2"
-            shift # past argument
+			gpu_host="$1"
             shift # past value
 			;;
 		-gv | --guppy-version)
-			guppy_version="$2"
-            shift # past argument
+			guppy_version="$1"
             shift # past value
 			;;
 		*)
