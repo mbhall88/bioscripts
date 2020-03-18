@@ -3,7 +3,7 @@
 
 if [[ $# -lt 2 || $# -gt 5 ]]; then
 	echo "Error: Illegal number of parameters: $#"
-	echo "Usage: $0 <indir> <outdir> [<batch_size> <filename_base> <threads>]"
+	echo "Usage: $0 <indir> <outdir> [<threads> <batch_size> <filename_base>]"
 	exit 2
 fi
 
@@ -26,11 +26,11 @@ if [ ! -d "$outdir" ]; then
 	mkdir "$outdir"
 fi
 
-batch_size="${3:-4000}"
+batch_size="${4:-4000}"
 
-filename_base="${4:-batch}"
+filename_base="${5:-batch}"
 
-threads="${5:-1}"
+threads="${3:-1}"
 
 singularity exec "$container" single_to_multi_fast5 --recursive \
 	--input_path "$indir" \
