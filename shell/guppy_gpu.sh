@@ -474,35 +474,52 @@ function parse_params() {
 			cron=true
 			;;
 		-i | --input)
-			input="$param"
+			input="$2"
 			if [ ! -d "$input" ]; then
 				script_exit "ERROR: Input directory $input does not exist" 1
 			fi
+            shift # past argument
+            shift # past value
 			;;
 		-o | --outdir)
-			outdir="$param"
+			outdir="$2"
 			if [ ! -d "$outdir" ]; then
 				pretty_print "WARNING: Output directory $outdir does not exist. Creating..."
 				mkdir "$outdir"
 			fi
+            shift # past argument
+            shift # past value
 			;;
 		-j | --jobname)
-			jobname="$param"
+			jobname="$2"
+            shift # past argument
+            shift # past value
 			;;
 		-g | --gpus)
-			num_gpus="$param"
+			num_gpus="$2"
+            shift # past argument
+            shift # past value
 			;;
 		-m | --memory)
-			memory=$((param * 1000))
+            val="$2"
+			memory=$((val * 1000))
+            shift # past argument
+            shift # past value
 			;;
 		-c | --config)
-			config="$param"
+			config="$2"
+            shift # past argument
+            shift # past value
 			;;
 		--host)
-			gpu_host="$param"
+			gpu_host="$2"
+            shift # past argument
+            shift # past value
 			;;
 		-gv | --guppy-version)
-			guppy_version="$param"
+			guppy_version="$2"
+            shift # past argument
+            shift # past value
 			;;
 		*)
 			script_exit "ERROR: Invalid parameter was provided: $param" 1
