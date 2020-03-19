@@ -483,7 +483,7 @@ function parse_params() {
 		-o | --outdir)
 			outdir="$1"
 			if [ ! -d "$outdir" ]; then
-				pretty_print "WARNING: Output directory $outdir does not exist. Creating..."
+				echo "WARNING: Output directory $outdir does not exist. Creating..."
 				mkdir "$outdir"
 			fi
             shift # past value
