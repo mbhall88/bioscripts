@@ -547,7 +547,7 @@ function main() {
         --save_path "$outdir" \
         --barcode_kits "$kits" \
         --worker_threads "$threads" \
-        "${flags}"
+        ${flags}
 }
 
 # Make it rain

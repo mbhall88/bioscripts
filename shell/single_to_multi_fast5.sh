@@ -532,12 +532,12 @@ function main() {
     fi
 
     singularity exec "$container" \
-    single_to_multi_fast5 --input_path "$input" \
+    single_to_multi_fast5 ${flags} \
+        --input_path "$input" \
         --save_path "$outdir" \
         --threads "$threads" \
         --batch_size "$batch_size" \
-        --filename_base "$prefix" \
-        "$flags"
+        --filename_base "$prefix"
 
 }
 
