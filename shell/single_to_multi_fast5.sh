@@ -392,10 +392,8 @@ function run_as_root() {
 }
 
 # CLI defaults
-memory=1000
 recurse=true
 threads=1
-jobname="single_to_multi"
 outdir="multi_fast5s"
 prefix="batch"
 batch_size=4000
@@ -406,12 +404,12 @@ ignore_symlinks=false
 # OUTS: None
 function script_usage() {
 	cat <<EOF
-A script to assist with submitting a single->multi fast5 conversion  job on an LSF cluster.
-The script submits the job to run in a singularity container.
+A script to assist with running single->multi fast5 conversion.
+The script runs the job to run in a singularity container.
 See https://github.com/nanoporetech/ont_fast5_api#single_to_multi_fast5 for further
 information on this tool.
 
-Usage: $(basename "$0") -i <indir> -o <outdir> [<threads> <batch_size> <filename_base>]"
+Usage: $(basename "$0") -i <indir> -o <outdir>
 
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
@@ -419,9 +417,7 @@ Usage: $(basename "$0") -i <indir> -o <outdir> [<threads> <batch_size> <filename
     -cr|--cron                  Run silently unless we encounter an error
      -i|--input                 Directory containing single-fast5 files [required]
      -o|--outdir                Directory to write multi-fast5 to [${outdir}]
-     -j|--jobname               Name for the LSF job [${jobname}]
      -t|--threads               Number of threads to use [${threads}]
-     -m|--memory                Memory (GB) to allocate for the job [$((memory / 1000))]
      -p|--prefix                Root of output filename, default=${prefix} -> ${prefix}_0.fast5
      -b|--batch-size            Number of reads per multi-read file [${batch_size}]
     -nr|--no-recursive          Don't recursively search for fast5 files in input directory
@@ -483,17 +479,8 @@ function parse_params() {
 			fi
             shift # past value
 			;;
-		-j | --jobname)
-			jobname="$1"
-            shift # past value
-			;;
 		-t | --threads)
 			threads="$1"
-            shift # past value
-			;;
-		-m | --memory)
-            val="$1"
-			memory=$((val * 1000))
             shift # past value
 			;;
 		-p | --prefix)
