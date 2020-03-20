@@ -421,16 +421,16 @@ Usage: $(basename "$0") -i <fast5_dir> -o <outdir> -j <jobname>
      -v|--verbose               Displays verbose output
     -nc|--no-colour             Disables colour output
     -cr|--cron                  Run silently unless we encounter an error
-     -i|--input                 Directory containing fast5 files [Required]
-     -o|--outdir                Directory for guppy output [Default: $outdir]
-     -j|--jobname               Name for the LSF job [Default: $jobname]
-     -g|--gpus                  Number of GPUs to use [Default: $num_gpus]
+     -i|--input                 Directory containing fast5 files [required]
+     -o|--outdir                Directory for guppy output [${outdir}]
+     -j|--jobname               Name for the LSF job [${jobname}]
+     -g|--gpus                  Number of GPUs to use [${num_gpus}]
      -m|--memory                Memory (GB) to allocate for the job [Default: $((memory / 1000))]
-     -c|--config                Guppy config to use for basecalling [Default: $config]
+     -c|--config                Guppy config to use for basecalling [${config}]
     -gv|--guppy-version         Version of guppy to use. Check valid versions at
                                 https://cloud.sylabs.io/library/mbhall88/default/guppy-gpu
-                                [Default: $guppy_version]
-        --host                  GPU host to submit the job to [Default: $gpu_host]
+                                [${guppy_version}]
+        --host                  GPU host to submit the job to [${gpu_host}]
 EOF
 }
 
@@ -441,7 +441,7 @@ function singularity_init() {
 	regex="([0-9]+)\.[0-9]+\.[0-9]+"
 	command -v singularity >/dev/null 2>&1 || script_exit "ERROR: Singularity is not available on your PATH" 1
 	sing_version=$(singularity --version)
-	if [[ $sing_version =~ $regex ]]; then
+	if [[ ${sing_version} =~ $regex ]]; then
 		major_version="${BASH_REMATCH[1]}"
 		if ((major_version < 3)); then
 			module load singularity/3.5.0 || script_exit "ERROR: Your singularity version is less than v3 and could not load v3 module" 1
@@ -459,7 +459,7 @@ function parse_params() {
 	while [[ $# -gt 0 ]]; do
 		param="$1"
 		shift  # past argument
-		case $param in
+		case ${param} in
 		-h | --help)
 			script_usage
 			exit 0
@@ -475,14 +475,14 @@ function parse_params() {
 			;;
 		-i | --input)
 			input="$1"
-			if [ ! -d "$input" ]; then
+			if [[ ! -d "$input" ]]; then
 				script_exit "ERROR: Input directory $input does not exist" 1
 			fi
             shift # past value
 			;;
 		-o | --outdir)
 			outdir="$1"
-			if [ ! -d "$outdir" ]; then
+			if [[ ! -d "$outdir" ]]; then
 				echo "WARNING: Output directory $outdir does not exist. Creating..."
 				mkdir "$outdir"
 			fi
@@ -518,7 +518,7 @@ function parse_params() {
 			;;
 		esac
 	done
-	if [ -z "${input+x}" ]; then
+	if [[ -z "${input+x}" ]]; then
 		script_usage
 		script_exit "ERROR: Input [-i|--input] is a required parameter and was not provided" 1
 	fi
