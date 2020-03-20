@@ -34,30 +34,28 @@ Usage: guppy_gpu.sh -i <fast5_dir> -o <outdir> -j <jobname>
         --host                  GPU host to submit the job to [Default: gpu74-v100-hosts]
 ```
 
-## Demultiplex with guppy on an LSF cluster
+## Demultiplex with guppy
 [`guppy_demux.sh`][4]
 
 ```
 $ ./guppy_demux.sh --help
-A script to assist with submitting a guppy demultiplexing job on an LSF cluster. The script
-submits the job to run in a singularity (v3) container.
+A script to assist with running guppy demultiplexing. The script (tries to) run in a
+singularity (v3) container.
 
-Usage: guppy_demux.sh -i <fastq_dir> -o <outdir> -j <jobname>
+Usage: guppy_demux.sh -i <fastq_dir> -o <outdir>
 
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
     -nc|--no-colour             Disables colour output
     -cr|--cron                  Run silently unless we encounter an error
      -i|--input                 Directory containing fastq files [required]
-     -o|--outdir                Directory for guppy output [<current directory>]
-     -j|--jobname               Name for the LSF job [demux]
+     -o|--outdir                Directory for guppy output [demux]
      -t|--threads               Number of threads to use [1]
-     -m|--memory                Memory (GB) to allocate for the job [4]
      -k|--barcode-kits          Space separated list of barcoding kit(s) or expansion
                                 kit(s) to detect against. Must be in double quotes ["EXP-NBD103"]
      -z|--compress              Compress the output files
         --trim                  Trim the barcodes from the output sequences
-    -nr|--no-recursive          Don't recursively search for fastq in input directory
+    -nr|--no-recursive          Don't recursively search for fastq files in input directory
     -gv|--guppy-version         Version of guppy to use. Check valid versions at
                                 https://cloud.sylabs.io/library/mbhall88/default/guppy-cpu
                                 [3.4.5]
@@ -78,15 +76,29 @@ Usage: ./multi_to_single_fast5.sh <indir> <outdir> [<threads>]
 ```
 
 ## Convert single-fast5 files to multi-fast5s
-Runs the job in a container (downloaded from biocontainers) using singularity.
-The script will try and load singularity from a module with `module load singularity/3.5.0`. If
-this is not relevant to your environment, then comment that line out.
 
 [`single_to_multi_fast5.sh`][3]
 
 ```
-$ ./single_to_multi_fast5.sh
-Usage: ./single_to_multi_fast5.sh <indir> <outdir> [<threads> <batch_size> <filename_base>]
+$ ./single_to_multi_fast5.sh --help
+A script to assist with running single->multi fast5 conversion.
+The script runs the job to run in a singularity container.
+See https://github.com/nanoporetech/ont_fast5_api#single_to_multi_fast5 for further
+information on this tool.
+
+Usage: single_to_multi_fast5.sh -i <fast5_dir> -o <outdir>
+
+     -h|--help                  Displays this help
+     -v|--verbose               Displays verbose output
+    -nc|--no-colour             Disables colour output
+    -cr|--cron                  Run silently unless we encounter an error
+     -i|--input                 Directory containing single-fast5 files [required]
+     -o|--outdir                Directory to write multi-fast5 to [multi_fast5s]
+     -t|--threads               Number of threads to use [1]
+     -p|--prefix                Root of output filename, default=batch -> batch_0.fast5
+     -b|--batch-size            Number of reads per multi-read file [4000]
+    -nr|--no-recursive          Don't recursively search for fast5 files in input directory
+        --ignore-symlinks       Ignore symlinks when searching recursively for fast5 files
 ```
 
 [1]: https://github.com/mbhall88/bioscripts/blob/master/shell/guppy_gpu.sh
