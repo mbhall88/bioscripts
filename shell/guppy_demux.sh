@@ -393,24 +393,22 @@ function run_as_root() {
 
 # CLI defaults
 guppy_version="3.4.5"
-memory=4000
 kits="EXP-NBD103"
 compress=false
 recurse=true
 trim=false
 threads=1
-jobname="demux"
-outdir=$(pwd)
+outdir="demux"
 
 # DESC: Usage help
 # ARGS: None
 # OUTS: None
 function script_usage() {
 	cat <<EOF
-A script to assist with submitting a guppy demultiplexing job on an LSF cluster. The script
-submits the job to run in a singularity (v3) container.
+A script to assist with running guppy demultiplexing. The script (tries to) run in a
+singularity (v3) container.
 
-Usage: $(basename "$0") -i <fastq_dir> -o <outdir> -j <jobname>
+Usage: $(basename "$0") -i <fastq_dir> -o <outdir>
 
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
@@ -418,14 +416,12 @@ Usage: $(basename "$0") -i <fastq_dir> -o <outdir> -j <jobname>
     -cr|--cron                  Run silently unless we encounter an error
      -i|--input                 Directory containing fastq files [required]
      -o|--outdir                Directory for guppy output [${outdir}]
-     -j|--jobname               Name for the LSF job [${jobname}]
      -t|--threads               Number of threads to use [${threads}]
-     -m|--memory                Memory (GB) to allocate for the job [$((memory / 1000))]
      -k|--barcode-kits          Space separated list of barcoding kit(s) or expansion
                                 kit(s) to detect against. Must be in double quotes ["${kits}"]
      -z|--compress              Compress the output files
         --trim                  Trim the barcodes from the output sequences
-    -nr|--no-recursive          Don't recursively search for fastq in input directory
+    -nr|--no-recursive          Don't recursively search for fastq files in input directory
     -gv|--guppy-version         Version of guppy to use. Check valid versions at
                                 https://cloud.sylabs.io/library/mbhall88/default/guppy-cpu
                                 [${guppy_version}]
@@ -486,17 +482,8 @@ function parse_params() {
 			fi
             shift # past value
 			;;
-		-j | --jobname)
-			jobname="$1"
-            shift # past value
-			;;
 		-t | --threads)
 			threads="$1"
-            shift # past value
-			;;
-		-m | --memory)
-            val="$1"
-			memory=$((val * 1000))
             shift # past value
 			;;
 		-k | --barcode-kits)
@@ -554,11 +541,6 @@ function main() {
         flags="${flags} --trim_barcodes"
     fi
 
-	bsub -R "select[mem>${memory}] rusage[mem=${memory}]" \
-    -M "$memory" \
-    -o "$jobname".o \
-    -e "$jobname".e \
-    -J "$jobname" \
     singularity exec "$container" \
     guppy_barcoder \
         --input_path "$input" \

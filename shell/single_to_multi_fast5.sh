@@ -409,7 +409,7 @@ The script runs the job to run in a singularity container.
 See https://github.com/nanoporetech/ont_fast5_api#single_to_multi_fast5 for further
 information on this tool.
 
-Usage: $(basename "$0") -i <indir> -o <outdir>
+Usage: $(basename "$0") -i <fast5_dir> -o <outdir>
 
      -h|--help                  Displays this help
      -v|--verbose               Displays verbose output
