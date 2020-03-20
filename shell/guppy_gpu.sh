@@ -404,7 +404,7 @@ config="dna_r9.4.1_450bps_hac_prom.cfg"
 # config="dna_r9.4.1_450bps_modbases_dam-dcm-cpg_hac_prom.cfg"
 num_gpus=1
 jobname="basecall"
-outdir=$(pwd)
+outdir="guppy"
 
 # DESC: Usage help
 # ARGS: None
