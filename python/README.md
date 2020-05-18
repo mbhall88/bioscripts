@@ -1,11 +1,40 @@
 [TOC]: #
 
 # Table of Contents
+- [Assess read accuracy from a PAF file](#assess-read-accuracy-from-a-paf-file)
 - [Assess per-base accuracy](#assess-per-base-accuracy)
 - [Iterative pilon polishing](#iterative-pilon-polishing)
 - [Remove contaminant contigs](#remove-contaminant-contigs)
 
 
+## Assess read accuracy from a PAF file
+[`assess_accuracy_from_paf.py`][4]
+
+```
+Usage: read_accuracy_from_paf.py [OPTIONS]
+
+  A script to produce data relevant to assessing the per-read accuracy for a
+  PAF file. The output is a file with columns containing read identifier,
+  read length, BLAST identity, and relative length of read compared to the
+  reference.
+
+Options:
+  -h, --help             Show this message and exit.
+  -i, --infile FILE      PAF file to assess.  [required]
+  -o, --output FILENAME  The path to write the output file to. Use '-' for
+                         stdout  [required]
+
+  --delim TEXT           The column delimiter to use in the output file.
+                         [default: ,]
+
+  --primary-only         Only assess primary alignments.
+  --min-cov INTEGER      Minimum read coverage required for a record to be
+                         assessed. Read coverage is defined as the proportion
+                         of the query sequence involved in the alignment. It
+                         is the aligned length minus the read length.
+                         [default: 0]
+
+```
 
 ## Assess per-base accuracy
 [`assess_per_base_accuracy.py`][1]
@@ -136,6 +165,8 @@ Options:
 ```
 
 
+
 [1]: https://github.com/mbhall88/bioscripts/blob/master/python/assess_per_base_accuracy.py
 [2]: https://github.com/mbhall88/bioscripts/blob/master/python/pilon_iterative.py
 [3]: https://github.com/mbhall88/bioscripts/blob/master/python/remove_contamination.py
+[4]: https://github.com/mbhall88/bioscripts/blob/master/python/assess_accuracy_from_paf.py
