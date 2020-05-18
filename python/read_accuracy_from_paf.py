@@ -1,4 +1,3 @@
-import logging
 from typing import TextIO, Iterator
 
 import click
