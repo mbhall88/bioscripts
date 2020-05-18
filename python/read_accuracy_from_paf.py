@@ -65,7 +65,7 @@ def main(
                 record.blast_identity(),
                 record.relative_length,
             ]
-            line = delim.join(fields)
+            line = delim.join(map(str, fields))
             print(line, file=output)
 
 
