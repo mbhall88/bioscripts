@@ -80,6 +80,27 @@ Options:
   -v, --verbose           Turns on debug-level logging.
 ```
 
+## Chop an assembly into pieces
+[`chop_assembly.py`][5]
+
+```
+Usage: chop_assembly.py [OPTIONS]
+
+  Takes an assembly as input and produces an output of 'reads': the assembly
+  chopped into pieces (chunks).
+
+Options:
+  -h, --help               Show this message and exit.
+  -i, --infile FILE        Assembly to chop up.  [required]
+  -o, --output FILENAME    The path to write the output file to. Use '-' for
+                           stdout  [required]
+  --chunk-size INTEGER     The length of the pieces to chop the assembly into.
+                           [default: 10000]
+  --min-tail-size INTEGER  When splitting the assembly into chunks, only keep
+                           the last chunk if it is longer than (or equal to)
+                           this value.  [default: 500]
+```
+
 ## Iterative pilon polishing
 [`pilon_iterative.py`][2]
 
@@ -170,3 +191,4 @@ Options:
 [2]: https://github.com/mbhall88/bioscripts/blob/master/python/pilon_iterative.py
 [3]: https://github.com/mbhall88/bioscripts/blob/master/python/remove_contamination.py
 [4]: https://github.com/mbhall88/bioscripts/blob/master/python/assess_accuracy_from_paf.py
+[5]: https://github.com/mbhall88/bioscripts/blob/master/python/chop_assembly.py
