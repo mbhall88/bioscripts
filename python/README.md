@@ -3,6 +3,7 @@
 # Table of Contents
 - [Assess read accuracy from a PAF file](#assess-read-accuracy-from-a-paf-file)
 - [Assess per-base accuracy](#assess-per-base-accuracy)
+- [Chop an assembly into pieces](#chop-an-assembly-into-pieces)
 - [Iterative pilon polishing](#iterative-pilon-polishing)
 - [Remove contaminant contigs](#remove-contaminant-contigs)
 
@@ -23,17 +24,14 @@ Options:
   -i, --infile FILE      PAF file to assess.  [required]
   -o, --output FILENAME  The path to write the output file to. Use '-' for
                          stdout  [required]
-
   --delim TEXT           The column delimiter to use in the output file.
                          [default: ,]
-
   --primary-only         Only assess primary alignments.
-  --min-cov INTEGER      Minimum read coverage required for a record to be
+  --min-cov FLOAT        Minimum read coverage required for a record to be
                          assessed. Read coverage is defined as the proportion
                          of the query sequence involved in the alignment. It
                          is the aligned length minus the read length.
                          [default: 0]
-
 ```
 
 ## Assess per-base accuracy
