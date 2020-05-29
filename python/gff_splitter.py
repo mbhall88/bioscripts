@@ -273,6 +273,13 @@ def main(
             )
 
     outdir = Path(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    file_mapping_path = outdir / "file_mapping.csv"
+    mapping_stream = file_mapping_path.open("w")
+    print(
+        ",".join(["filename", "type", "start", "end", "name", "contig"]),
+        file=mapping_stream,
+    )
 
     for contig, tree in feature_trees.items():
         logging.info(f"Writing feature output file(s) for {contig}...")
@@ -290,6 +297,22 @@ def main(
             )
             seq = slice_seq(index[contig], interval)
             filepath.write_text(f"{header}\n{seq}")
+            print(
+                ",".join(
+                    map(
+                        str,
+                        [
+                            "/".join(filepath.parts[-3:]),
+                            "feature",
+                            interval.begin,
+                            interval.end,
+                            interval.data,
+                            contig,
+                        ],
+                    )
+                ),
+                file=mapping_stream,
+            )
 
             logging.debug(f"{interval} written to {filepath}")
 
@@ -313,7 +336,8 @@ def main(
             )
             contig_dir = outdir / contig / "igrs"
             contig_dir.mkdir(parents=True, exist_ok=True)
-            filename = igr_name(interval, left_iv, right_iv) + ".fa"
+            name = igr_name(interval, left_iv, right_iv)
+            filename = name + ".fa"
             filepath = contig_dir / filename
 
             if filepath.exists():
@@ -326,8 +350,28 @@ def main(
             )
             seq = slice_seq(index[contig], interval)
             filepath.write_text(f"{header}\n{seq}")
+            print(
+                ",".join(
+                    map(
+                        str,
+                        [
+                            "/".join(filepath.parts[-3:]),
+                            "igr",
+                            interval.begin,
+                            interval.end,
+                            name,
+                            contig,
+                        ],
+                    )
+                ),
+                file=mapping_stream,
+            )
 
             logging.debug(f"{interval} written to {filepath}")
+
+    mapping_stream.close()
+    logging.info(f"File mapping written to {file_mapping_path}")
+    logging.info("All done!")
 
 
 if __name__ == "__main__":

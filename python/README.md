@@ -99,6 +99,40 @@ Options:
                            this value.  [default: 500]
 ```
 
+## Split genome based on GFF file
+[`gff_splitter.py`](./gff_splitter.py)
+
+```
+$ python gff_splitter.py --help
+Usage: gff_splitter.py [OPTIONS]
+
+  Splits a FASTA file into chunks based on a GFF3 file. The splits produced
+  are based on the --types given and everything inbetween. For example, the
+  default --types is 'gene'. In this case, the coordinates for each gene are
+  cut out of the FASTA file, as well as the bits inbetween - intergenic
+  regions (IGRs).
+
+Options:
+  -h, --help              Show this message and exit.
+  -f, --fasta FILENAME    FASTA file to split.  [default: -; required]
+  -g, --gff FILENAME      GFF3 file to base split coordinates on.  [required]
+  -o, --outdir DIRECTORY  The directory to write the output files to.
+                          [default: .]
+
+  --types TEXT            The feature types to split on. Separate types by a
+                          space or pass option mutiple times.  [default: gene]
+
+  --min-igr-len INTEGER   The minimum length of the intergenic regions to
+                          output.  [default: 0]
+
+  --max-igr-len FLOAT     The maximum length of the intergenic regions to
+                          output. Set to 0 to disable IGR output.  [default:
+                          inf]
+
+  --no-merge              Don't merge features that overlap.
+  -v, --verbose           Turns on debug-level logging.
+```
+
 ## Iterative pilon polishing
 [`pilon_iterative.py`][2]
 
