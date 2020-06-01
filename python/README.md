@@ -123,14 +123,14 @@ Options:
   --types TEXT            The feature types to split on. Separate types by a
                           space or pass option mutiple times.  [default: gene]
 
-  --min-igr-len INTEGER   The minimum length of the intergenic regions to
-                          output.  [default: 0]
+  --min-len INTEGER       The minimum length of the chunks to output. If a
+                          chunk is shorter than this value, it is joined to a
+                          neighbouring chunk.  [default: 1]
 
-  --max-igr-len FLOAT     The maximum length of the intergenic regions to
-                          output. Set to 0 to disable IGR output.  [default:
-                          inf]
+  --max-len INTEGER       The maximum length of the chunks to output. Use this
+                          option with caution. If a chunk is greater than this
+                          value it is discarded.  [default: inf]
 
-  --no-merge              Don't merge features that overlap.
   -v, --verbose           Turns on debug-level logging.
 ```
 
