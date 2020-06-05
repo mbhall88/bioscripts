@@ -3,6 +3,7 @@
 # Table of Contents
 - [Assess read accuracy from a PAF file](#assess-read-accuracy-from-a-paf-file)
 - [Assess per-base accuracy](#assess-per-base-accuracy)
+- [Assign lineages for *Mycobacterium tuberculosis*](#assign-lineages-for-mycobacterium-tuberculosis)
 - [Chop an assembly into pieces](#chop-an-assembly-into-pieces)
 - [Split genome based on GFF file](#split-genome-based-on-gff-file)
 - [Iterative pilon polishing](#iterative-pilon-polishing)
