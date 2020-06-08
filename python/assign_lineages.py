@@ -1,10 +1,8 @@
 import logging
 import re
-from itertools import starmap, repeat, takewhile
-
 from collections import Counter, defaultdict
 from enum import Enum
-from dataclasses import dataclass
+from itertools import starmap, repeat, takewhile
 from typing import TextIO, Dict, Optional, NamedTuple, List, Union
 
 import click
@@ -294,12 +292,22 @@ class Classifier:
             return str(lineages[0])
 
         majors = Counter([l.major for l in lineages])
-        most_common_major = majors.most_common(n=1)[0]
-        num_alt_lineages = len(lineages) - most_common_major[-1]
+        two_most_common = majors.most_common(n=2)
+        most_common_count = two_most_common[0][-1]
+        most_common_major = two_most_common[0][0]
+
+        even_count_on_two_most_common_majors = (
+            len(two_most_common) > 1 and most_common_count == two_most_common[-1][-1]
+        )
+        if even_count_on_two_most_common_majors:
+            return "mixed"
+
+        num_alt_lineages = len(lineages) - most_common_count
         if num_alt_lineages > self.max_alt_lineages:
             return "mixed"
 
-        return str(Lineage.call(lineages))
+        non_alt_lineages = [l for l in lineages if l.major == most_common_major[0]]
+        return str(Lineage.call(non_alt_lineages))
 
 
 def load_panel(
