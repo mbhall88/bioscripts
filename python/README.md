@@ -90,29 +90,37 @@ Usage: assign_lineages.py [OPTIONS]
   Call Mycobacterium tuberculosis lineages for samples in a VCF file.
 
 Options:
-  -h, --help                  Show this message and exit.
-  -i, --input FILE            VCF file to call lineages for.  [default: -]
-  -p, --panel FILE            Panel containing variants that define the
-                              lineages.  [required]
-  -o, --output FILENAME       The filepath to write the output to.  [default:
-                              -]
-  -d, --delim TEXT            Delimiting character used in the panel file.
-                              [default: ,]
-  --default-lineage TEXT      Lineage to use when no panel variants are found
-                              for a sample.  [default: unknown]
-  --output-delim TEXT         Delimiting character used in the output file. Do
-                              not use `;`.  [default: ,]
-  --no-header                 Indicates there is no header line in the panel
-                              file.
-  --max-het INTEGER           Maximum allowed heterozygous lineage-defining
-                              variants before abandoning lineage assignment
-                              for a sample.  [default: 0]
-  --max-alt-lineages INTEGER  Maximum allowed number of variants from
-                              different major lineages. For example if a
-                              sample has 2 L4 variants and 1 L3 variant, this
-                              sample would be called L4 if this parameter is
-                              set to 1 or 'mixed' if set to 0  [default: 0]
-  -v, --verbose               Turns on debug-level logging.
+  -h, --help                      Show this message and exit.
+  -i, --input FILE                VCF file to call lineages for.  [default: -]
+  -p, --panel FILE                Panel containing variants that define the
+                                  lineages.  [required]
+  -o, --output FILENAME           The filepath to write the output to.
+                                  [default: -]
+  -d, --delim TEXT                Delimiting character used in the panel file.
+                                  [default: ,]
+  --ref-lineage-position INTEGER  Variant position that defines the lineage of
+                                  the VCF reference. When classifying lineages
+                                  a REF call at this position will be
+                                  considered a call for the reference lineage
+                                  as opposed to other variants which require
+                                  an ALT call. Set to 0 to disable this
+                                  option.  [default: 0]
+  --default-lineage TEXT          Lineage to use when no panel variants are
+                                  found for a sample.  [default: unknown]
+  --output-delim TEXT             Delimiting character used in the output
+                                  file. Do not use `;`.  [default: ,]
+  --no-header                     Indicates there is no header line in the
+                                  panel file.
+  --max-het INTEGER               Maximum allowed heterozygous lineage-
+                                  defining variants before abandoning lineage
+                                  assignment for a sample.  [default: 0]
+  --max-alt-lineages INTEGER      Maximum allowed number of variants from
+                                  different major lineages. For example if a
+                                  sample has 2 L4 variants and 1 L3 variant,
+                                  this sample would be called L4 if this
+                                  parameter is set to 1 or 'mixed' if set to 0
+                                  [default: 0]
+  -v, --verbose                   Turns on debug-level logging.
 ```
 
 ## Chop an assembly into pieces
