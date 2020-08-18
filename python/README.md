@@ -7,6 +7,7 @@
 - [Chop an assembly into pieces](#chop-an-assembly-into-pieces)
 - [Split genome based on GFF file](#split-genome-based-on-gff-file)
 - [Iterative pilon polishing](#iterative-pilon-polishing)
+- [Plot distance matrix](#plot-distance-matrix)
 - [Remove contaminant contigs](#remove-contaminant-contigs)
 
 
@@ -231,6 +232,33 @@ Options:
   -l, --log-file TEXT             Name of the log file.  [default: log.txt]
 ```
 
+## Plot distance matrix
+[`plot_distance_matrix.py`][6]
+
+This script was designed to work with the output of [`snp-dists`][snp-dists].
+
+```
+$ python plot_distance_matrix.py --help
+Usage: plot_distance_matrix.py [OPTIONS]
+
+  This script generates an interactive heatmap (HTML) for a distance matrix.
+
+Options:
+  -h, --help                      Show this message and exit.
+  -i, --matrix FILE               Distance matrix to plot.  [default: -]
+  -o, --output FILE               Path to save HTML plot to.  [default:
+                                  heatmap.html]
+  -d, --delim TEXT                Delimiter used in the matrix. [ default:
+                                  '\t']
+  -p, --palette [YlGn|YlGnBu|GnBu|BuGn|PuBuGn|PuBu|BuPu|RdPu|PuRd|OrRd|YlOrRd|YlOrBr|Purples|Blues|Greens|Oranges|Reds|Greys|PuOr|BrBG|PRGn|PiYG|RdBu|RdGy|RdYlBu|Spectral|RdYlGn|Accent|Dark2|Paired|Pastel1|Pastel2|Set1|Set2|Set3]
+                                  ColorBrewer palette to use for heatmap.
+                                  [default: RdBu]
+  -t, --title TEXT                Title for the heatmap.  [default: Pairwise
+                                  distance matrix]
+  --width INTEGER                 Plot width in pixels  [default: 900]
+  --height INTEGER                Plot height in pixels  [default: 900]
+```
+
 ## Remove contaminant contigs
 [`remove_contamination.py`][3]
 
@@ -269,3 +297,5 @@ Options:
 [3]: https://github.com/mbhall88/bioscripts/blob/master/python/remove_contamination.py
 [4]: https://github.com/mbhall88/bioscripts/blob/master/python/assess_accuracy_from_paf.py
 [5]: https://github.com/mbhall88/bioscripts/blob/master/python/chop_assembly.py
+[6]: https://github.com/mbhall88/bioscripts/blob/master/python/plot_distance_matrix.py
+[snp-dists]: https://github.com/tseemann/snp-dists
